@@ -6,15 +6,22 @@ public class Class {
   private final static int nStudents = 12;
   private final static int gGroups = 6;
   private final static String studentNamesPath = "C:\\Users\\AsianAndyRoo\\CSE 193 Student_Group Project\\studentNames.txt";
+  private final static String moderatorNamesPath = "C:\\Users\\AsianAndyRoo\\CSE 193 Student_Group Project\\moderatorNames.txt";
 
   private static int longestName = 0;
   private static boolean pairGroups = false;
   private static String pairGroupsStr = "pair groups";
   private static ArrayList<Student> students = new ArrayList<Student>();
+  private static ArrayList<Group> groups = new ArrayList<Group>();
 
     public static void main(String[] args) {
       readNames(nStudents);
       Collections.shuffle(students);
+
+      for(int i = 0; i < gGroups; i++) {
+        groups.add(new Group(-1, i + 1));
+      }
+
       assignGroups(nStudents, gGroups);
       sortStudentsAlphabetically();
 
@@ -31,8 +38,9 @@ public class Class {
       }
 
       if(pairGroups) {
-        printPairs();
+        assignAndPrintPairs();
       }
+      pairModerators();
     }
 
     /*
@@ -98,20 +106,49 @@ public class Class {
       }
     }
 
-    public static void printPairs() {
+    public static void assignAndPrintPairs() {
       System.out.println("\nGroup Pairs:");
-      ArrayList<Integer> groups = new ArrayList<Integer>();
-      for(int i = 0; i < gGroups; i++) {
-        groups.add(i + 1);
-      }
 
       Collections.shuffle(groups);
-      int currGroup = 0;
-      for(int i = 0; i < (gGroups / 2); i++) {
-        currGroup = groups.remove(0);
-        System.out.print("Group " + currGroup);
-        currGroup = groups.remove(0);
-        System.out.println(" with Group " + currGroup);
+      for(int i = 0; i < (gGroups); i++) {
+        System.out.print("Group " + groups.get(i).getGroupNum());
+        i++;
+        System.out.println(" with Group " + groups.get(i).getGroupNum());
+
+        //Assigns groups pairs within groups
+        groups.get(i - 1).setGroupPair(groups.get(i).getGroupNum());
+        groups.get(i).setGroupPair(groups.get(i - 1).getGroupNum());
+      }
+    }
+
+    public static void pairModerators() {
+      File file = new File(moderatorNamesPath);
+      Scanner scanner = new Scanner(System.in);
+
+      try {
+        scanner = new Scanner(file);
+        System.out.println("\nModerator Pairs: ");
+      }
+      catch (FileNotFoundException e) {
+        return;
+      }
+
+      ArrayList<String> mods = new ArrayList<String>();
+      while(scanner.hasNext()) {
+        mods.add(scanner.nextLine());
+      }
+      Collections.shuffle(mods);
+
+      int currGroups = 0;
+      for(int i = 0; i < mods.size(); i++) {
+        System.out.println(mods.get(i) + " is paired with groups " +
+          groups.get(currGroups).getGroupNum() + " and " +
+          groups.get(currGroups + 1).getGroupNum());
+
+        currGroups += 2;
+        if(currGroups == groups.size()) {
+          currGroups = 0;
+        }
       }
     }
 }
